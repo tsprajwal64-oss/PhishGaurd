@@ -17,7 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class PhishGuardServer {
-    private static final int PORT = 8081;
+    private static final int PORT = Integer.parseInt(System.getenv().getOrDefault("PORT", "8081"));
     private static final int MAX_BODY = 100_000;
 
     interface DetectionRule { int check(String email, List<String> findings); }
@@ -205,7 +205,7 @@ public class PhishGuardServer {
             .followRedirects(HttpClient.Redirect.NORMAL)
             .build();
 
-        HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
+        HttpServer server = HttpServer.create(new InetSocketAddress("0.0.0.0", PORT), 0);
         server.createContext("/api/analyze", PhishGuardServer::analyze);
         server.createContext("/api/investigate", ex -> investigate(ex, client));
         server.createContext("/phishing.css", ex -> file(ex, "phishing.css", "text/css; charset=UTF-8"));
