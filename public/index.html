@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="PhishGuard email threat analysis and sender investigation">
+  <meta name="theme-color" content="#e9edf2">
+  <title>PhishGuard — Email Security Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/phishing.css">
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script src="/phishing.js" defer></script>
+</head>
+<body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="PhishGuard home">
+      <span class="brand-mark">⌑.</span>
+      <span>Phish<span class="brand-accent">Guard</span><small>EMAIL SECURITY CHECK</small></span>
+    </a>
+    <div class="top-actions">
+      <span class="system-status"><i></i> LOCAL ANALYSIS SYSTEM</span>
+      <span class="system-status"><small>BY Team 11</small></span>
+      <button id="themeToggle" class="theme-toggle" type="button" aria-label="Switch to dark mode">
+        <span id="themeIcon">☾</span><span id="themeLabel">Dark mode</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="eyebrow-line"></span> EMAIL THREAT INTELLIGENCE</div>
+        <h1>See the threat.<br><span>Stop the click.</span></h1>
+        <p>Inspect suspicious messages, investigate sender domains and analyse email screenshots with one simple security workspace.</p>
+        <div class="hero-foot"><span class="pulse-dot"></span> Your scans are processed by your local PhishGuard server</div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="orbit orbit-a"></div><div class="orbit orbit-b"></div>
+        <div class="hero-shield"><span>⌑</span><i></i></div>
+        <div class="float-chip chip-top">THREAT MONITOR <b>● ACTIVE</b></div>
+        <div class="float-chip chip-bottom"><span>✓</span> EMAIL DEFENCE</div>
+      </div>
+    </section>
+
+    <section class="dashboard" aria-label="Recent scan statistics">
+      <article class="metric">
+        <div class="metric-top"><span>Total scans</span><span class="metric-icon">⌁</span></div>
+        <strong id="totalScans">0</strong><small>Last 10 investigations</small>
+      </article>
+      <article class="metric">
+        <div class="metric-top"><span>Threats detected</span><span class="metric-icon threat-icon">⚑</span></div>
+        <strong id="threatScans">0</strong><small>Suspicious and phishing</small>
+      </article>
+      <article class="metric">
+        <div class="metric-top"><span>Safe results</span><span class="metric-icon safe-icon">✓</span></div>
+        <strong id="safeScans">0</strong><small>No configured indicators found</small>
+      </article>
+    </section>
+
+    <section class="workspace">
+      <div class="workspace-heading">
+        <div><span class="eyebrow">INVESTIGATION WORKSPACE</span><h2>Choose a scan method</h2></div>
+        <span class="secure-label"><span>◆</span> SECURE SESSION</span>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Investigation method">
+        <button class="tab active" id="tabPaste" role="tab" aria-selected="true" aria-controls="panePaste" data-tab="paste"><span>✉</span> Paste email</button>
+        <button class="tab" id="tabSender" role="tab" aria-selected="false" aria-controls="paneSender" data-tab="sender"><span>⌕</span> Sender investigation</button>
+        <button class="tab" id="tabImage" role="tab" aria-selected="false" aria-controls="paneImage" data-tab="image"><span>▧</span> Screenshot upload</button>
+      </div>
+
+      <section class="tab-pane active" id="panePaste" role="tabpanel" aria-labelledby="tabPaste">
+        <div class="pane-intro"><div class="pane-icon">✉</div><div><h3>Analyse email content</h3><p>Paste the message content to check for suspicious wording and unsafe links.</p></div></div>
+        <form id="pasteForm">
+          <label for="emailText">EMAIL CONTENT</label>
+          <textarea id="emailText" rows="9" maxlength="100000" placeholder="From: security@example.com&#10;Subject: Verify your account&#10;&#10;Paste the complete email here..." required></textarea>
+          <div class="form-bottom"><span>Include sender, subject and links when available.</span><button class="primary" type="submit" id="pasteSubmit">Analyse email <b>→</b></button></div>
+        </form>
+      </section>
+
+      <section class="tab-pane" id="paneSender" role="tabpanel" aria-labelledby="tabSender" hidden>
+        <div class="pane-intro"><div class="pane-icon">⌕</div><div><h3>Investigate sender domain</h3><p>Check publicly available domain registration information using RDAP.</p></div></div>
+        <form id="senderForm">
+          <label for="senderEmail">SENDER EMAIL ADDRESS</label>
+          <input id="senderEmail" type="email" placeholder="name@example.com" required>
+          <div class="form-note">Domain registration data does not authenticate the sender or verify SPF, DKIM or DMARC.</div>
+          <div class="form-bottom"><span>Public domain lookup · Internet required</span><button class="primary" type="submit" id="senderSubmit">Investigate sender <b>→</b></button></div>
+        </form>
+      </section>
+
+      <section class="tab-pane" id="paneImage" role="tabpanel" aria-labelledby="tabImage" hidden>
+        <div class="pane-intro"><div class="pane-icon">▧</div><div><h3>Investigate an email screenshot</h3><p>Extract visible text from an email image, review it and run the email analysis.</p></div></div>
+        <label class="upload-box" for="imageFile">
+          <span class="upload-icon">⇧</span><strong>Choose an image to upload</strong>
+          <span>PNG, JPG or WEBP · Maximum 8 MB</span>
+          <input id="imageFile" type="file" accept="image/png,image/jpeg,image/webp">
+        </label>
+        <div id="imagePreviewWrap" class="preview-wrap" hidden>
+          <img id="imagePreview" alt="Selected email screenshot preview">
+          <button id="removeImage" class="secondary" type="button">Remove image</button>
+        </div>
+        <div class="ocr-actions">
+          <button class="primary" id="imageSubmit" type="button" disabled>Extract text <b>→</b></button>
+          <p id="ocrStatus" class="ocr-status" aria-live="polite">Choose a screenshot to begin.</p>
+        </div>
+        <label for="ocrText">EXTRACTED TEXT · EDIT BEFORE ANALYSING</label>
+        <textarea id="ocrText" rows="7" placeholder="Extracted screenshot text will appear here..."></textarea>
+        <button class="secondary analyse-ocr" id="analyseOcr" type="button" disabled>Analyse extracted text</button>
+      </section>
+
+      <section id="resultPanel" class="result-panel" aria-live="polite" hidden>
+        <div class="result-banner">
+          <div><span class="eyebrow">PHISHGUARD SECURITY REPORT</span><h2 id="resultTitle">Analysis complete</h2><p id="resultMessage" class="result-description">Your security analysis is ready.</p></div>
+          <span class="result-indicator" id="resultIndicator">SCAN COMPLETE</span>
+        </div>
+        <div class="result-overview">
+          <div class="risk-visual" id="riskVisual">
+            <div class="risk-ring" id="riskRing">
+              <svg viewBox="0 0 180 180" aria-hidden="true">
+                <circle class="ring-track" cx="90" cy="90" r="76"></circle>
+                <circle class="ring-progress" id="riskCircle" cx="90" cy="90" r="76"></circle>
+              </svg>
+              <div class="ring-content"><strong><span id="riskValue">0</span><small>%</small></strong><span>RISK SCORE</span></div>
+            </div>
+            <span class="risk-caption" id="riskCaption">Waiting for analysis</span>
+          </div>
+          <div class="result-details">
+            <div><span class="eyebrow">THREAT ASSESSMENT</span><h3 id="riskHeading">Security overview</h3></div>
+            <div class="risk-meter">
+              <div class="meter-labels"><span>Risk level</span><strong id="riskLevel">Pending</strong></div>
+              <div class="meter"><div id="riskFill"></div></div>
+            </div>
+            <div class="result-message-card"><span class="message-icon" id="messageIcon">✓</span><div><strong id="resultSummary">Analysis complete</strong><p id="resultAdvice">Review the findings below before taking action.</p></div></div>
+          </div>
+        </div>
+        <div class="findings-section">
+          <div class="findings-heading"><div><span class="eyebrow">DETECTION DETAILS</span><h3>Why this result?</h3></div><span class="findings-tag">SCAN FINDINGS</span></div>
+          <ul id="findingList"></ul>
+        </div>
+        <div class="result-footer"><span>PhishGuard · Rule-based security analysis</span><span>Always verify suspicious messages independently.</span></div>
+      </section>
+    </section>
+
+    <section class="lower-grid">
+      <section class="card">
+        <div class="card-heading"><div><span class="eyebrow">RECENT ACTIVITY</span><h2>Last 10 scans</h2></div><button id="clearHistory" class="text-button" type="button">Clear history</button></div>
+        <div id="historyList" class="history-list"><p class="empty">No scans yet. Run your first investigation.</p></div>
+      </section>
+      <section class="card graph-card">
+        <div class="card-heading"><div><span class="eyebrow">SECURITY OVERVIEW</span><h2>Threat trend</h2></div><span class="legend"><i></i> Risk score</span></div>
+        <canvas id="trendChart" height="220" role="img" aria-label="Risk score for the last ten email scans"></canvas>
+        <p class="chart-note">Latest email and screenshot scans. Taller bars indicate a higher rule-based risk score.</p>
+      </section>
+    </section>
+
+    <section class="disclaimer"><strong>Educational security tool.</strong> A “Safe” result does not guarantee an email is legitimate. PhishGuard uses predefined indicators and cannot replace a secure email gateway or professional security review.</section>
+  </main>
+  <footer>PhishGuard <span>·</span> Email Security Lab <span>·</span> Educational project | tsprajwal64@gmail.com|</footer>
+</body>
+</html>
